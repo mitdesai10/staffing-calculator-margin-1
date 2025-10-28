@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staffing Margin Calculator - Dynamic</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div>
+                    <h1 class="header-title">💼 Staffing Margin Calculator</h1>
+                    <p class="header-subtitle">Target: 55%+ Average Margin · Dynamic Rate Analysis</p>
+                </div>
+                <div class="header-actions">
+                    <button id="refreshBtn" class="btn-refresh" onclick="refreshData()" title="Refresh data from Google Sheets">
+                        🔄 Refresh Data
+                    </button>
+                    <div class="last-update" id="lastUpdate">Loading data...</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="calculator-layout">
+                
+                <!-- Input Panel -->
+                <div class="input-panel">
+                    <div class="panel-header">
+                        <h2>Add Position</h2>
+                        <div class="target-badge">🎯 Target: 55%+ Avg Margin</div>
+                    </div>
+                    
+                    <form id="positionForm" class="input-form">
+                        <!-- Role -->
+                        <div class="form-group">
+                            <label for="role">Role <span class="required">*</span></label>
+                            <select id="role" class="form-control" required>
+                                <option value="">Select a role...</option>
+                            </select>
+                        </div>
+
+                        <!-- Hours -->
+                        <div class="form-group">
+                            <label for="hours">Hours <span class="required">*</span></label>
+                            <input type="number" id="hours" class="form-control" placeholder="e.g., 173" required min="1" step="1">
+                        </div>
+
+                        <!-- Location -->
+                        <div class="form-group">
+                            <label class="form-label">Location <span class="required">*</span></label>
+                            <div class="radio-location-group">
+                                <label class="radio-location">
+                                    <input type="radio" name="location" value="onshore" required>
+                                    <span class="radio-location-label">
+                                        <span class="radio-location-name">🏢 Onshore</span>
+                                        <span class="radio-location-desc" id="onshoreRate">Select role first</span>
+                                    </span>
+                                </label>
+                                <label class="radio-location">
+                                    <input type="radio" name="location" value="offshore" required>
+                                    <span class="radio-location-label">
+                                        <span class="radio-location-name">🌏 Offshore</span>
+                                        <span class="radio-location-desc" id="offshoreRate">Select role first</span>
+                                    </span>
+                                </label>
+                                <label class="radio-location">
+                                    <input type="radio" name="location" value="nearshore" required>
+                                    <span class="radio-location-label">
+                                        <span class="radio-location-name">🌎 Nearshore</span>
+                                        <span class="radio-location-desc" id="nearshoreRate">Select role first</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Client Rate -->
+                        <div class="form-group">
+                            <label for="clientRate">Client Rate ($/hr) <span class="required">*</span></label>
+                            <input type="number" id="clientRate" class="form-control" placeholder="e.g., 340" required min="0" step="0.01">
+                            <small class="form-hint">What you'll charge the client per hour</small>
+                        </div>
+
+                        <!-- Live Preview -->
+                        <div class="live-preview" id="livePreview" style="display: none;">
+                            <div class="preview-header">📊 Preview</div>
+                            <div class="preview-row">
+                                <span>Your Cost:</span>
+                                <span id="previewCost">-</span>
+                            </div>
+                            <div class="preview-row">
+                                <span>Revenue:</span>
+                                <span id="previewRevenue">-</span>
+                            </div>
+                            <div class="preview-row">
+                                <span>Profit:</span>
+                                <span id="previewProfit" class="preview-profit">-</span>
+                            </div>
+                            <div class="preview-margin" id="previewMargin">
+                                <div class="margin-label">Margin:</div>
+                                <div class="margin-value">-</div>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <button type="submit" class="btn btn-primary">
+                            <span class="btn-text">Add Position</span>
+                            <span class="btn-icon">+</span>
+                        </button>
+
+                        <button type="button" id="clearAllBtn" class="btn btn-secondary" style="display: none;">
+                            🗑️ Clear All
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Results Panel -->
+                <div class="results-container">
+                    
+                    <!-- Average Margin Tracker -->
+                    <div class="margin-tracker" id="marginTracker" style="display: none;">
+                        <div class="tracker-content">
+                            <div class="tracker-label">Current Average Margin</div>
+                            <div class="tracker-value" id="trackerValue">0%</div>
+                            <div class="tracker-status" id="trackerStatus">No positions added</div>
+                        </div>
+                        <div class="tracker-bar">
+                            <div class="tracker-bar-fill" id="trackerBarFill" style="width: 0%"></div>
+                            <div class="tracker-target">55%</div>
+                        </div>
+                    </div>
+
+                    <!-- Positions Table -->
+                    <div class="positions-table-panel" id="positionsTablePanel" style="display: none;">
+                        <div class="panel-header">
+                            <h2>📋 Positions</h2>
+                            <span class="position-count" id="positionCount">0 positions</span>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="positions-table">
+                                <thead>
+                                    <tr>
+                                        <th>Role</th>
+                                        <th>Hrs</th>
+                                        <th>Location</th>
+                                        <th>Cost</th>
+                                        <th>Rate</th>
+                                        <th>Revenue</th>
+                                        <th>Profit</th>
+                                        <th>Margin</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="positionsTableBody">
+                                    <!-- Rows added dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Summary Panel -->
+                    <div class="summary-panel" id="summaryPanel" style="display: none;">
+                        <div class="panel-header">
+                            <h2>📊 Summary</h2>
+                        </div>
+                        <div class="summary-grid">
+                            <div class="summary-card">
+                                <div class="summary-card-label">Total Hours</div>
+                                <div class="summary-card-value" id="summaryHours">0</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-card-label">Total Cost</div>
+                                <div class="summary-card-value" id="summaryCost">$0</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-card-label">Total Revenue</div>
+                                <div class="summary-card-value" id="summaryRevenue">$0</div>
+                            </div>
+                            <div class="summary-card highlight">
+                                <div class="summary-card-label">Total Profit</div>
+                                <div class="summary-card-value profit" id="summaryProfit">$0</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Warnings -->
+                        <div id="warningsContainer"></div>
+                    </div>
+
+                    <!-- Placeholder -->
+                    <div class="results-placeholder" id="resultsPlaceholder">
+                        <div class="placeholder-icon">🎯</div>
+                        <h3>Ready to Calculate</h3>
+                        <p>Add your first position to start tracking margins</p>
+                        <div class="placeholder-features">
+                            <div class="feature">✓ Real-time margin calculation</div>
+                            <div class="feature">✓ Target 55%+ average margin</div>
+                            <div class="feature">✓ Smart warnings & suggestions</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Staffing Margin Calculator. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="sheetsConfig.js"></script>
+    <script src="rateCardData.js"></script>
+    <script src="sheetsLoader.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
