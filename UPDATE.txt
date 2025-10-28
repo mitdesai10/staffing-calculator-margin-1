@@ -1,0 +1,32 @@
+✅ UPDATED: Average Margin Added to Summary!
+═══════════════════════════════════════════════
+
+WHAT'S NEW:
+- Added "Average Margin" card in Summary section
+- Shows average margin percentage for all positions
+- Color-coded based on performance:
+  🎉 70%+ = Purple (Excellent)
+  ✅ 55-69% = Green (Good - Above target)
+  ⚠️ 40-54% = Yellow (Warning - Below target)
+  ❌ <40% = Red (Danger - Too low)
+
+SUMMARY NOW SHOWS 5 CARDS:
+┌──────────────┬──────────────┬──────────────┬──────────────┬──────────────┐
+│ Total Hours  │ Total Cost   │ Total Revenue│ Total Profit │ Avg Margin   │
+│    1,038     │  $128,020    │  $361,570    │  $233,550    │    72% 🎉   │
+└──────────────┴──────────────┴──────────────┴──────────────┴──────────────┘
+
+EXAMPLE:
+If your positions have margins: 41%, 57%, 18%, 96%, 99%
+Average Margin will show: 62.2% ✅ (Above 55% target!)
+
+The average margin card will be:
+- Purple border if 70%+ (Excellent!)
+- Green border if 55-69% (Good - above target)
+- Yellow border if 40-54% (Warning - close to target)
+- Red border if <40% (Danger - too low)
+
+This matches your Excel calculation where individual margins vary
+but the overall average is what matters!
+
+Upload the updated files and test! 🚀
